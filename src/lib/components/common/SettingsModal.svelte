@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getSettingsService, getBoardService } from '../../services/context';
+  import { getSettingsService, getBoardService, getGalleryService } from '../../services/context';
   import {
     X, Plus, Tag, Download, SlidersHorizontal, Globe, RotateCcw
   } from 'lucide-svelte';
@@ -12,6 +12,7 @@
 
   let settingsService = getSettingsService();
   let boardService = getBoardService();
+  let galleryService = getGalleryService();
 
   let activeTab = $state<'global' | 'board'>('global');
   let newBlacklistTag = $state('');
@@ -20,6 +21,32 @@
   function close() {
     isOpen = false;
   }
+
+  let wasOpen = $state(false);
+  let queryOnOpen = '';
+  let blacklistOnOpen = '';
+
+  $effect(() => {
+    if (isOpen && !wasOpen) {
+      wasOpen = true;
+      queryOnOpen = galleryService.buildEffectiveQuery(galleryService.searchQuery);
+      const settings = boardService.getEffectiveSettings();
+      blacklistOnOpen = JSON.stringify(settings.blacklist || []);
+    } else if (!isOpen && wasOpen) {
+      wasOpen = false;
+      const queryOnClose = galleryService.buildEffectiveQuery(galleryService.searchQuery);
+      const settings = boardService.getEffectiveSettings();
+      const blacklistOnClose = JSON.stringify(settings.blacklist || []);
+      
+      if (queryOnOpen !== queryOnClose) {
+        galleryService.refresh();
+      } else if (blacklistOnOpen !== blacklistOnClose) {
+        if (galleryService.filteredPosts.length < 15 && galleryService.hasMore) {
+          galleryService.loadMore();
+        }
+      }
+    }
+  });
 
   function addGlobalBlacklistTag() {
     if (newBlacklistTag.trim()) {

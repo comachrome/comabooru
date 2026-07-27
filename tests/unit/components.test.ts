@@ -5,11 +5,11 @@ import MediaCard from '../../src/lib/components/gallery/MediaCard.svelte';
 import SearchBar from '../../src/lib/components/search/SearchBar.svelte';
 import FloatingBoardManager from '../../src/lib/components/board/FloatingBoardManager.svelte';
 import Header from '../../src/lib/components/common/Header.svelte';
+import SettingsModal from '../../src/lib/components/common/SettingsModal.svelte';
 import LightboxModal from '../../src/lib/components/gallery/LightboxModal.svelte';
 import BoardModal from '../../src/lib/components/board/BoardModal.svelte';
 import { renderWithServices, createTestServices } from '../testUtils';
 import type { BooruPost } from '../../src/lib/api/types';
-import { proxifyMediaUrl } from '../../src/lib/api/httpUtils';
 
 const isVitest = Boolean(process.env.VITEST);
 
@@ -225,6 +225,48 @@ describe.skipIf(!isVitest)('Component Tests', () => {
       const alert = container.querySelector('.alert-error');
       expect(alert).not.toBeNull();
       expect(alert?.textContent).toContain('заполните');
+    });
+  });
+
+  describe('SettingsModal Component', () => {
+    test('calls gallery refresh when rating settings change', async () => {
+      const services = createTestServices();
+      services.gallery.searchQuery = 'cats';
+      let refreshCalled = false;
+      services.gallery.refresh = () => { refreshCalled = true; };
+
+      const { container } = renderWithServices(SettingsModal, { props: { isOpen: true }, services });
+
+      // Change rating setting
+      services.settings.toggleRating('explicit');
+
+      // Close modal by clicking close button
+      const closeBtn = container.querySelector('.close-btn') as HTMLButtonElement;
+      await fireEvent.click(closeBtn);
+
+      expect(refreshCalled).toBe(true);
+    });
+
+    test('calls gallery loadMore when blacklist changes and filteredPosts becomes short', async () => {
+      const services = createTestServices();
+      services.gallery.searchQuery = 'cats';
+      services.gallery.hasMore = true;
+      services.gallery.posts = [
+        { ...mockPost, tags: 'bad_tag' }
+      ];
+      let loadMoreCalled = false;
+      services.gallery.loadMore = async () => { loadMoreCalled = true; };
+
+      const { container } = renderWithServices(SettingsModal, { props: { isOpen: true }, services });
+
+      // Add to blacklist, which filters out the post
+      services.settings.addToBlacklist('bad_tag');
+
+      // Close modal
+      const closeBtn = container.querySelector('.close-btn') as HTMLButtonElement;
+      await fireEvent.click(closeBtn);
+
+      expect(loadMoreCalled).toBe(true);
     });
   });
 });
