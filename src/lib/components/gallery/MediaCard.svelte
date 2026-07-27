@@ -61,6 +61,20 @@
       isDownloading = false;
     }
   }
+
+  let imageErrorCount = $state(0);
+
+  function handleImageError(e: Event) {
+    const img = e.target as HTMLImageElement;
+    if (imageErrorCount < 3) {
+      imageErrorCount++;
+      setTimeout(() => {
+        // Добавляем параметр retry для обхода кеша Cloudflare, если мы получили 404 из-за rate-limit Gelbooru
+        const baseSrc = proxifyMediaUrl(post.preview_url || post.sample_url || post.file_url);
+        img.src = `${baseSrc}${baseSrc.includes('?') ? '&' : '?'}retry=${Date.now()}_${imageErrorCount}`;
+      }, 1000 * imageErrorCount); // 1s, 2s, 3s backoff
+    }
+  }
 </script>
 
 <div
@@ -79,6 +93,7 @@
         alt="Post #{post.id}"
         loading="lazy"
         referrerpolicy={settingsService.settings.referrerPolicy || 'no-referrer'}
+        onerror={handleImageError}
       />
     {:else}
       <div class="restricted-fallback">

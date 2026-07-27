@@ -36,6 +36,12 @@ serve({
         });
         proxyHeaders.set('Access-Control-Allow-Origin', '*');
 
+        if (resp.status !== 200 && resp.status !== 206) {
+          proxyHeaders.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+          proxyHeaders.set('Pragma', 'no-cache');
+          proxyHeaders.set('Expires', '0');
+        }
+
         return new Response(resp.body, {
           status: resp.status,
           headers: proxyHeaders
