@@ -1,0 +1,92 @@
+/* Design System Variables - comabooru */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Fonts */
+  --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Accent & Brand Colors (Monochrome) */
+  --color-accent-primary: #ffffff;
+  --color-accent-primary-hover: #e5e7eb;
+
+  --color-accent-secondary: #000000;
+  --color-accent-secondary-hover: #111827;
+
+  /* Booru Tag Category Colors (Monochrome Scale) */
+  --tag-general: #d1d5db;
+  --tag-artist: #9ca3af;
+  --tag-copyright: #6b7280;
+  --tag-character: #e5e7eb;
+  --tag-meta: #4b5563;
+
+  /* Rating Colors */
+  --rating-general: #10b981;
+  --rating-sensitive: #f59e0b;
+  --rating-questionable: #f97316;
+  --rating-explicit: #ef4444;
+
+  /* Dark Theme (Default Pitch Black OLED) */
+  --bg-app: #000000;
+  --bg-surface: #0a0a0a;
+  --bg-surface-elevated: #111111;
+
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --text-inverse: #0f111a;
+
+  /* Status Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
+  /* Layout & Spacing */
+  --header-height: 60px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* Animations & Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Shadows (Subdued) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.7);
+
+  /* Borders */
+  --border-glass: rgba(255, 255, 255, 0.08);
+}
+
+/* Light Theme Variant */
+[data-theme="light"] {
+  --bg-app: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #e2e8f0;
+
+  --color-accent-primary: #000000;
+  --color-accent-primary-hover: #111827;
+
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --text-inverse: #ffffff;
+
+  --tag-general: #4b5563;
+  --tag-artist: #374151;
+  --tag-copyright: #1f2937;
+  --tag-character: #6b7280;
+  --tag-meta: #111827;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.15);
+
+  --border-glass: rgba(0, 0, 0, 0.1);
+}
+
+
