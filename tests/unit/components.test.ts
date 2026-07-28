@@ -8,6 +8,7 @@ import Header from '../../src/lib/components/common/Header.svelte';
 import SettingsModal from '../../src/lib/components/common/SettingsModal.svelte';
 import LightboxModal from '../../src/lib/components/gallery/LightboxModal.svelte';
 import BoardModal from '../../src/lib/components/board/BoardModal.svelte';
+import FeedView from '../../src/lib/components/gallery/FeedView.svelte';
 import { renderWithServices, createTestServices } from '../testUtils';
 import type { BooruPost } from '../../src/lib/api/types';
 
@@ -124,6 +125,23 @@ describe.skipIf(!isVitest)('Component Tests', () => {
       const brand = container.querySelector('.logo-text');
       expect(brand).not.toBeNull();
       expect(brand?.textContent).toContain('comabooru');
+    });
+  });
+
+  describe('FeedView Component', () => {
+    test('renders slides and floating controls when posts exist', () => {
+      const services = createTestServices();
+      services.gallery.posts = [mockPost, { ...mockPost, id: 101 }];
+      const { container } = renderWithServices(FeedView, { services });
+
+      const slides = container.querySelectorAll('.feed-slide');
+      expect(slides.length).toBe(2);
+
+      const floatingCtrls = container.querySelector('.feed-controls-floating');
+      expect(floatingCtrls).not.toBeNull();
+
+      const counter = container.querySelector('.counter-badge');
+      expect(counter?.textContent?.trim()).toBe('1 / 2');
     });
   });
 

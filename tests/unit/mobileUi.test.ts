@@ -37,10 +37,10 @@ describe.skipIf(!isVitest)('Mobile UI Component Tests', () => {
       expect(mobileControls).not.toBeNull();
 
       const buttons = container.querySelectorAll('.mobile-nav-controls .action-btn');
-      expect(buttons.length).toBe(2);
+      expect(buttons.length).toBe(3);
 
-      // Click mobile search toggle button
-      const searchBtn = buttons[0];
+      // Click mobile search toggle button (index 1: ViewMode=0, Search=1, Menu=2)
+      const searchBtn = buttons[1];
       await fireEvent.click(searchBtn);
 
       const searchDrawer = container.querySelector('.mobile-search-bar');
@@ -51,7 +51,7 @@ describe.skipIf(!isVitest)('Mobile UI Component Tests', () => {
       const { container } = renderWithServices(Header, { props: { isSettingsOpen: false, isBoardModalOpen: false } });
 
       const buttons = container.querySelectorAll('.mobile-nav-controls .action-btn');
-      const menuBtn = buttons[1];
+      const menuBtn = buttons[2];
       await fireEvent.click(menuBtn);
 
       const menuDrawer = container.querySelector('.mobile-menu-drawer');

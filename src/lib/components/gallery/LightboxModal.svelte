@@ -199,7 +199,9 @@
         {#if isVideo}
           <video
             src={proxifyMediaUrl(post.file_url)}
+            poster={proxifyMediaUrl(post.preview_url)}
             controls
+            preload="metadata"
             autoplay={settingsService.settings.autoPlayVideo}
             loop={settingsService.settings.loopVideo}
             muted={settingsService.settings.muteVideo}

@@ -3,6 +3,7 @@
   import { createServices, setAppServices } from './lib/services/context';
   import Header from './lib/components/common/Header.svelte';
   import GalleryGrid from './lib/components/gallery/GalleryGrid.svelte';
+  import FeedView from './lib/components/gallery/FeedView.svelte';
   import OnboardingModal from './lib/components/auth/OnboardingModal.svelte';
   import LightboxModal from './lib/components/gallery/LightboxModal.svelte';
   import SettingsModal from './lib/components/common/SettingsModal.svelte';
@@ -17,12 +18,18 @@
   let isSettingsOpen = $state(false);
   let isBoardModalOpen = $state(false);
   let isInitialized = $state(false);
+  let viewMode = $state<'grid' | 'feed'>('grid');
+  let feedIndex = $state(0);
 
-  function syncUrl(boardId: string | null, query: string, replace = false) {
+  function syncUrl(boardId: string | null, query: string, mode: 'grid' | 'feed', index: number, replace = false) {
     if (typeof window === 'undefined') return;
     const parts: string[] = [];
     if (boardId) parts.push(`b=${encodeURIComponent(boardId)}`);
     if (query && query.trim()) parts.push(`q=${encodeURIComponent(query.trim())}`);
+    if (mode === 'feed') {
+      parts.push(`v=feed`);
+      if (index > 0) parts.push(`i=${index}`);
+    }
 
     const queryString = parts.join('&');
     const targetUrl = queryString ? `?${queryString}` : window.location.pathname;
@@ -41,6 +48,8 @@
     const params = new URLSearchParams(window.location.search);
     const urlBoard = params.get('b') || params.get('board');
     const urlQuery = params.get('q') || '';
+    const urlView = params.get('v') || params.get('view');
+    const urlIndex = parseInt(params.get('i') || params.get('index') || '0', 10);
 
     if (urlBoard && urlBoard !== board.activeBoardId) {
       board.selectBoard(urlBoard);
@@ -48,6 +57,11 @@
 
     if (urlQuery !== gallery.searchQuery) {
       gallery.search(urlQuery);
+    }
+
+    viewMode = urlView === 'feed' ? 'feed' : 'grid';
+    if (!isNaN(urlIndex)) {
+      feedIndex = urlIndex;
     }
   }
 
@@ -58,6 +72,8 @@
     const params = new URLSearchParams(window.location.search);
     const urlBoard = params.get('b') || params.get('board');
     const urlQuery = params.get('q');
+    const urlView = params.get('v') || params.get('view');
+    const urlIndex = parseInt(params.get('i') || params.get('index') || '0', 10);
 
     const boardsList = board.boards;
     if (urlBoard && boardsList.some(b => b.id === urlBoard)) {
@@ -67,11 +83,18 @@
     const activeId = board.activeBoardId;
     const initialQuery = urlQuery !== null ? urlQuery : '';
 
+    if (urlView === 'feed') {
+      viewMode = 'feed';
+    }
+    if (!isNaN(urlIndex) && urlIndex >= 0) {
+      feedIndex = urlIndex;
+    }
+
     if (auth.credentials?.userId && auth.credentials?.apiKey) {
       gallery.search(initialQuery);
     }
 
-    syncUrl(activeId, initialQuery, true);
+    syncUrl(activeId, initialQuery, viewMode, feedIndex, true);
     isInitialized = true;
 
     window.addEventListener('popstate', handlePopState);
@@ -82,7 +105,7 @@
 
   $effect(() => {
     if (isInitialized && typeof window !== 'undefined') {
-      syncUrl(board.activeBoardId, gallery.searchQuery);
+      syncUrl(board.activeBoardId, gallery.searchQuery, viewMode, feedIndex);
     }
   });
 </script>
@@ -91,12 +114,21 @@
   {#if !auth.isAuthenticated}
     <OnboardingModal />
   {:else}
-    <Header bind:isSettingsOpen bind:isBoardModalOpen />
-    <main class="main-content">
-      <div class="main-content-inner">
-        <GalleryGrid />
-      </div>
-    </main>
+    <Header bind:isSettingsOpen bind:isBoardModalOpen bind:viewMode />
+    {#if viewMode === 'grid'}
+      <main class="main-content">
+        <div class="main-content-inner">
+          <GalleryGrid />
+        </div>
+      </main>
+    {:else}
+      <main class="main-content feed-mode">
+        <FeedView
+          initialIndex={feedIndex}
+          onIndexChange={(idx) => { feedIndex = idx; }}
+        />
+      </main>
+    {/if}
     <LightboxModal />
     <!-- Modals rendered at root level to escape sticky header stacking context -->
     <SettingsModal bind:isOpen={isSettingsOpen} />
@@ -119,6 +151,11 @@
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+  }
+
+  .main-content.feed-mode {
+    overflow: hidden;
+    padding: 0;
   }
 
   .main-content-inner {

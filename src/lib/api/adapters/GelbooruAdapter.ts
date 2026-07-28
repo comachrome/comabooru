@@ -63,8 +63,11 @@ export class GelbooruAdapter implements BooruAdapter {
       fileUrl = `${cleanUrl}/${fileUrl.replace(/^\/+/, '')}`;
     }
 
-    // Prefer sample_url for high resolution crisp thumbnails on Gelbooru
-    const highResPreviewUrl = sampleUrl || previewUrl || fileUrl;
+    const isVideo = fileUrl.endsWith('.mp4') || fileUrl.endsWith('.webm') || fileUrl.endsWith('.zip');
+
+    // Prefer sample_url for high resolution crisp thumbnails on Gelbooru,
+    // but for videos, sampleUrl is the .mp4 file URL so we must use the JPG previewUrl image!
+    const highResPreviewUrl = isVideo ? (previewUrl || fileUrl) : (sampleUrl || previewUrl || fileUrl);
 
     const rawRating = String(raw.rating || 'general').toLowerCase();
     let rating = rawRating;

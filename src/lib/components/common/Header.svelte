@@ -2,16 +2,18 @@
   import SearchBar from '../search/SearchBar.svelte';
   import FloatingBoardManager from '../board/FloatingBoardManager.svelte';
   import { getGalleryService, getBoardService, getSettingsService } from '../../services/context';
-  import { Settings, Moon, Sun, RefreshCw, Menu, X, Search } from 'lucide-svelte';
+  import { Settings, Moon, Sun, RefreshCw, Menu, X, Search, LayoutGrid, Film } from 'lucide-svelte';
 
   interface Props {
     isSettingsOpen?: boolean;
     isBoardModalOpen?: boolean;
+    viewMode?: 'grid' | 'feed';
   }
 
   let {
     isSettingsOpen = $bindable(false),
-    isBoardModalOpen = $bindable(false)
+    isBoardModalOpen = $bindable(false),
+    viewMode = $bindable<'grid' | 'feed'>('grid')
   }: Props = $props();
 
   let gallery = getGalleryService();
@@ -25,6 +27,10 @@
     const currentTheme = board.getEffectiveSettings().theme;
     if (currentTheme === 'dark') settingsService.setTheme('light');
     else settingsService.setTheme('dark');
+  }
+
+  function toggleViewMode() {
+    viewMode = viewMode === 'grid' ? 'feed' : 'grid';
   }
 
   function resetToHome() {
@@ -61,6 +67,19 @@
     <div class="header-actions desktop-only">
       <FloatingBoardManager bind:isBoardModalOpen />
 
+      <button
+        class="action-btn"
+        class:active={viewMode === 'feed'}
+        onclick={toggleViewMode}
+        title={viewMode === 'grid' ? 'Режим ленты (TikTok)' : 'Режим сетки'}
+      >
+        {#if viewMode === 'grid'}
+          <Film size={17} />
+        {:else}
+          <LayoutGrid size={17} />
+        {/if}
+      </button>
+
       <button class="action-btn" onclick={() => gallery.refresh()} title="Обновить">
         <RefreshCw size={17} />
       </button>
@@ -80,6 +99,19 @@
 
     <!-- Mobile Controls: Search Button + Burger Menu Button -->
     <div class="mobile-nav-controls mobile-only">
+      <button
+        class="action-btn"
+        class:active={viewMode === 'feed'}
+        onclick={toggleViewMode}
+        title={viewMode === 'grid' ? 'Режим ленты' : 'Режим сетки'}
+      >
+        {#if viewMode === 'grid'}
+          <Film size={18} />
+        {:else}
+          <LayoutGrid size={18} />
+        {/if}
+      </button>
+
       <button
         class="action-btn"
         class:active={isMobileSearchOpen}
@@ -124,6 +156,16 @@
       </div>
 
       <div class="mobile-drawer-actions">
+        <button class="drawer-action-btn" onclick={() => { toggleViewMode(); isMobileMenuOpen = false; }}>
+          {#if viewMode === 'grid'}
+            <Film size={16} />
+            <span>Режим ленты (TikTok)</span>
+          {:else}
+            <LayoutGrid size={16} />
+            <span>Режим сетки</span>
+          {/if}
+        </button>
+
         <button class="drawer-action-btn" onclick={() => { gallery.refresh(); isMobileMenuOpen = false; }}>
           <RefreshCw size={16} />
           <span>Обновить посты</span>

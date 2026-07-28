@@ -23,12 +23,7 @@ export class DanbooruAdapter implements BooruAdapter {
   isSupportedUrl(url: string): boolean {
     if (!url) return false;
     const lower = url.toLowerCase();
-    return (
-      lower.includes('danbooru.donmai.us') ||
-      lower.includes('safebooru.donmai.us') ||
-      lower.includes('testbooru.donmai.us') ||
-      lower.includes('booru.donmai.us')
-    );
+    return lower.includes('donmai.us');
   }
 
   getProxyHeaders(_url: URL): Record<string, string> {

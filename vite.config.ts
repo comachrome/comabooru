@@ -32,6 +32,10 @@ function dynamicBooruProxyPlugin() {
             'Accept': req.headers['accept'] || '*/*'
           };
 
+          if (req.headers['range']) {
+            headers['Range'] = req.headers['range'] as string;
+          }
+
           const resp = await fetch(targetUrl, { headers });
           res.statusCode = resp.status;
           resp.headers.forEach((val: string, key: string) => {
@@ -41,8 +45,18 @@ function dynamicBooruProxyPlugin() {
           });
           res.setHeader('Access-Control-Allow-Origin', '*');
 
-          const buffer = await resp.arrayBuffer();
-          res.end(Buffer.from(buffer));
+          if (resp.body) {
+            const reader = resp.body.getReader();
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              res.write(value);
+            }
+            res.end();
+          } else {
+            const buffer = await resp.arrayBuffer();
+            res.end(Buffer.from(buffer));
+          }
         } catch (e: unknown) {
           res.statusCode = 500;
           res.end((e as Error)?.message || 'Proxy error');

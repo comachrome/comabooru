@@ -75,6 +75,11 @@ export async function fetchWithRateLimitRetry(
 
 export function proxifyMediaUrl(url: string): string {
   if (!url) return '';
+  // Danbooru CDN (cdn.donmai.us) works directly in browser with referrerpolicy="no-referrer"
+  // Proxying via node fetch causes Cloudflare HTTP 403 Forbidden
+  if (url.includes('donmai.us')) {
+    return url;
+  }
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return `/p/${encodeURIComponent(url)}`;
   }

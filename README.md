@@ -13,8 +13,9 @@
   - Quick onboarding with instant account validation via test API requests.
   - Dual-layer credential storage (`localStorage` + `SameSite=Strict` cookies).
   - Multi-board support allowing seamless switching between different Booru API endpoints.
-- **🖼 Gallery & Lightbox Viewer**:
+- **🖼 Gallery, Lightbox & TikTok Feed View**:
   - Fluid, responsive grid layout supporting multiple view densities (`compact`, `comfortable`, `masonry`).
+  - **TikTok-style Vertical Feed Mode**: Fullscreen scroll-snap slides with video streaming, smooth keyboard navigation (`W`/`S`/`↑`/`↓`), collapsible tags drawer, and history syncing (`?v=feed&i=index`).
   - High-performance media viewing for images and videos (`.mp4`, `.webm`, `.gif`).
   - Fullscreen Lightbox mode with 1-click downloads and quick links to original source posts.
   - Comprehensive keyboard navigation (`←` / `→` or `A` / `D` for browsing, `S` to download, `Esc` to close).
@@ -105,7 +106,28 @@ Add the following secrets under **Settings** ➔ **Secrets and variables** ➔ *
 
 ---
 
-### 2. Production Deployment (Bun Server + Nginx)
+### 2. Cloudflare Worker (Zero-Server-Load Proxy) - Recommended
+
+To handle massive image traffic efficiently and bypass Booru CDN rate limits without overloading your VPS, it is highly recommended to deploy the included Cloudflare Worker.
+
+The worker intercepts API and image proxy requests (`/p/*`) at the edge, attaches necessary Hotlink-protection bypass headers (like `Referer`), and fetches data directly from the Booru servers.
+
+1. Navigate to the worker directory:
+```bash
+cd worker
+bun install
+```
+
+2. Edit `wrangler.toml` and uncomment the `routes` section, pointing it to your domain (e.g. `booru.yourdomain.com/p/*`).
+
+3. Deploy to Cloudflare:
+```bash
+bun run deploy
+```
+
+---
+
+### 3. Production Deployment (Bun Server + Nginx)
 
 For production, Comabooru runs as a fully-featured Node/Bun application. The `server.ts` handles serving static SPA files and dynamically proxies Booru APIs to bypass CORS and CDN hotlinking restrictions.
 
